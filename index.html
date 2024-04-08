@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <section>
+        <div>
+            <input type="text" id="nombreProyecto" placeholder="nombre">
+            <input type="text" id="descripcionProyecto" placeholder="descripcion">
+            <button onclick="agregarProyecto(document.querySelector('#nombreProyecto').value, document.querySelector('#descripcionProyecto').value)" id="mas">+</button>
+        </div>
+        <ul id="listaProyectos"> 
+        </ul>
+    </section>
+    <article>
+        <h2>Tareas</h2>
+        <div>
+            <input type="text" id="todo">
+            <button onclick="agregarToDo(document.querySelector('#todo').value)" id="mas">+</button>
+        </div>
+        <ul id="array">
+        </ul>
+        <div id="calcular">
+            <button onclick="calcularTareaMasRapida()" id="boton-calcular">Tarea que mas rapida fue realizada</button>
+        </div>
+    </article>
+    <script src="index.js"></script>
+</body>
+</html>
