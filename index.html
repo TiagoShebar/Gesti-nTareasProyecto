@@ -12,23 +12,11 @@
         <div>
             <input type="text" id="nombreProyecto" placeholder="nombre">
             <input type="text" id="descripcionProyecto" placeholder="descripcion">
-            <button onclick="agregarProyecto(document.querySelector('#nombreProyecto').value, document.querySelector('#descripcionProyecto').value)" id="mas">+</button>
+            <button onclick="agregarProyecto(document.querySelector('#nombreProyecto').value, document.querySelector('#descripcionProyecto').value !== null ? document.querySelector('#descripcionProyecto').value : '')" id="mas">+</button>
         </div>
         <ul id="listaProyectos"> 
         </ul>
     </section>
-    <article>
-        <h2>Tareas</h2>
-        <div>
-            <input type="text" id="todo">
-            <button onclick="agregarToDo(document.querySelector('#todo').value)" id="mas">+</button>
-        </div>
-        <ul id="array">
-        </ul>
-        <div id="calcular">
-            <button onclick="calcularTareaMasRapida()" id="boton-calcular">Tarea que mas rapida fue realizada</button>
-        </div>
-    </article>
     <script src="index.js"></script>
 </body>
 </html>

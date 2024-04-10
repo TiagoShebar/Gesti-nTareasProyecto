@@ -3,7 +3,7 @@
 var proyecto = {
     nombreProyecto: "",
     descripcionProyecto: "",
-    lista: [todo],
+    lista: [],
 };
 
 var todo = {
@@ -28,63 +28,89 @@ const agregarProyecto = (nombreProyecto, descripcionProyecto) => {
     }
 }
 
+var clickSI=false;
+
 const mostrarProyectos = () => {
     const contenedorProyectos = document.getElementById("listaProyectos");
     while (contenedorProyectos.hasChildNodes()) {
         contenedorProyectos.removeChild(contenedorProyectos.firstChild);
     }
-    listaProyectos.forEach(element => {
-        var contenedor = document.createElement("article");
-        var title = document.createElement("title");
-        title.textContent = element.nombreProyecto;
-        var p = document.createElement("p");
-        p.textContent = element.descripcionProyecto;
-        contenedor.appendChild(title);
-        contenedor.appendChild(p);
-        contenedor.setAttribute("id", title);
-        contenedorProyectos.appendChild(contenedor);
-    });
+    if(listaProyectos.length > 0){
+        listaProyectos.forEach(element => {
+            var contenedor = document.createElement("article");
+            var title = document.createElement("h3");
+            title.textContent = element.nombreProyecto;
+            title.setAttribute("id", `h3${element.nombreProyecto}`);
+            var p = document.createElement("p");
+            p.textContent = element.descripcionProyecto;
+            p.setAttribute("id", `p${element.nombreProyecto}`)
+            contenedor.appendChild(title);
+            contenedor.appendChild(p);
+            contenedor.setAttribute("id", element.nombreProyecto);
+            contenedor.addEventListener("click", () => {if(clickSI===false) {console.log("es falso"); desplegarProyecto(element.nombreProyecto); clickSI = true;}else{console.log("es verdadero"); cerrarProyecto(element.nombreProyecto); clickSI = false}}); // Usar addEventListener para asignar el evento click
+            contenedorProyectos.appendChild(contenedor);
+        });
+    }
         
 }
 
 const desplegarProyecto = (nombreProyecto) => {
-    const contenedorProyecto = document.getElementById(nombreProyecto);
-    var contenedor = document.createElement("div");
-    var inputTarea = document.createElement("input");
-    inputTarea.setAttribute("type", "text");
-    inputTarea.setAttribute("id", `todo${nombreProyecto}`);
-    var inputDescripcion = document.createElement("input");
-    inputDescripcion.setAttribute("type", "text");
-    inputDescripcion.setAttribute("id", `descripcion${nombreProyecto}`);
-    var button = document.createElement("button");
-    button.setAttribute("id", `mas${nombreProyecto}`);
-    button.setAttribute("onclick", agregarToDo(document.querySelector(`#todo${nombreProyecto}`).value, document.querySelector(`#descripcion${nombreProyecto}`).value, listaProyectos.filter(element => nombreProyecto == element.nombreProyecto).lista));
-    contenedor.appendChild(inputTarea);
-    contenedor.appendChild(inputDescripcion);
-    contenedor.appendChild(button);
-    contenedorProyecto.appendChild(contenedor);
-    var array = document.createElement("ul");
-    array.setAttribute("class", "tareas");
-    contenedorProyecto.appendChild(array);
-    mostrarListaTodo(listaProyectos.filter(element => nombreProyecto == element.nombreProyecto));
+    var proyecto = document.getElementById(nombreProyecto);
+        var contenedor = document.createElement("div");
+        var inputTarea = document.createElement("input");
+        inputTarea.setAttribute("type", "text");
+        inputTarea.setAttribute("id", `todo${nombreProyecto}`);
+        var inputDescripcion = document.createElement("input");
+        inputDescripcion.setAttribute("type", "text");
+        inputDescripcion.setAttribute("id", `descripcion${nombreProyecto}`);
+        var button = document.createElement("button");
+        button.setAttribute("id", `mas${nombreProyecto}`);
+        button.onclick = function() {
+            agregarToDo(
+                document.querySelector(`#todo${nombreProyecto}`).value,
+                document.querySelector(`#descripcion${nombreProyecto}`).value,
+                listaProyectos.find(element => element.nombreProyecto === nombreProyecto),
+                nombreProyecto
+            );
+        };
+        contenedor.appendChild(inputTarea);
+        contenedor.appendChild(inputDescripcion);
+        contenedor.appendChild(button);
+        proyecto.appendChild(contenedor);
+        var array = document.createElement("ul");
+        array.setAttribute("id", `ul${nombreProyecto}`);
+        proyecto.appendChild(array);
+        mostrarListaTodo(listaProyectos.find(element => element.nombreProyecto === nombreProyecto));
+    
 }
 
 const cerrarProyecto = (nombreProyecto) => {
     const contenedorProyecto = document.getElementById(nombreProyecto);
-    while (contenedorProyecto.hasChildNodes()) {
-        contenedorProyecto.removeChild(contenedorProyecto.firstChild);
+    var cantidad = contenedorProyecto.childElementCount;
+    
+    for (let i = 0; i < cantidad; i++) {
+        let elementoHijo = contenedorProyecto.children[i];
+        
+        // Verifica si el ID del elemento hijo es diferente de `h3${nombreProyecto}` y `p${nombreProyecto}`
+        if (elementoHijo.getAttribute("id") !== `h3${nombreProyecto}` && elementoHijo.getAttribute("id") !== `p${nombreProyecto}`) {
+            contenedorProyecto.removeChild(elementoHijo);
+            i--; // Disminuye el contador para ajustar la longitud de los hijos después de la eliminación
+            cantidad--; // Disminuye la cantidad de hijos
+        }
+        console.log(elementoHijo.getAttribute("id"));
     }
 }
 
 
-const agregarToDo = (todo, descripcion, lista) => {
-    if(todo.length > 0 && verificarLista(todo, lista)) {
-        lista.push();
-        lista[lista.length-1].texto = todo;
-        lista[lista.length-1].horaCreacion = Date.now();
-        lista[lista.length-1].descripcion = descripcion
-        lista[lista.length-1].fechaVencimiento = Date.now() + 0.1;
-        mostrarLista(todo);
+
+const agregarToDo = (todo, descripcion, proyecto) => {
+    if(todo.length > 0 && verificarLista(todo, proyecto.lista)) {
+        proyecto.lista.push(Object.create(todo));
+        proyecto.lista[lista.length-1].texto = todo;
+        proyecto.lista[lista.length-1].horaCreacion = Date.now();
+        proyecto.lista[lista.length-1].descripcion = descripcion
+        proyecto.lista[lista.length-1].fechaVencimiento = Date.now() + 0.1;
+        mostrarListaTodo(todo);
     }
 }
 
@@ -101,37 +127,38 @@ const verificarLista = (elemento, lista) => {
     }
 }
 
-const mostrarListaTodo = (lista) => {
-    const array = document.getElementsByClassName('tareas');
+const mostrarListaTodo = (proyecto) => {
+    const array = document.getElementById(`ul${proyecto.nombreProyecto}`);
     while (array.hasChildNodes()){
         array.removeChild(array.firstChild);
     }
 
-    for (var i = 0; i < lista.length; i++){
+    for (var i = 0; i < proyecto.lista.length; i++){
         var contenedor = document.createElement("div");
         var label = document.createElement("label");
-        label.textContent = lista[i].texto;
+        console.log(proyecto.lista)
+        label.textContent = proyecto.lista[i].texto !== undefined? proyecto.lista[i].texto : '';
         label.setAttribute("id", `label${i}`);
-        if (lista[i].check) {
+        if (proyecto.lista[i].check) {
             label.style.textDecoration = 'line-through';
         }
         var checkbox = document.createElement("input");
         checkbox.setAttribute("type", "checkbox");
-        checkbox.checked = lista[i].check;
+        checkbox.checked = proyecto.lista[i].check;
         var eliminar = document.createElement("button");
         eliminar.setAttribute("id", `eliminar${i}`);
         eliminar.setAttribute("onclick", "borrarToDo(" + i + ")");
         eliminar.textContent = "x";
         checkbox.addEventListener('change', (function(j) {
             return function() {
-                lista[j].check = this.checked;
-                lista[i].horaCheck = Date.now();
-                if(lista[j].check){
+                proyecto.lista[j].check = this.checked;
+                proyecto.lista[i].horaCheck = Date.now();
+                if(proyecto.lista[j].check){
                     document.getElementById(j).style.textDecoration = 'line-through';
                 }
                 else{
                     document.getElementById(j).style.textDecoration = 'none';
-                    lista[j].horaCheck = false;
+                    proyecto.lista[j].horaCheck = false;
                 }
             }
         })(i));
