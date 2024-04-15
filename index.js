@@ -108,18 +108,22 @@ const cerrarProyecto = (nombreProyecto) => {
 
 
 
-const agregarToDo = (todo, descripcion, proyecto) => {
-    if(todo.length > 0 && verificarLista(todo, proyecto.lista)) {
-        var toDo = Object.create(todo);
-        console.log(toDo);
-        toDo.texto = todo;
-        toDo.descripcion = descripcion;
-        toDo.horaCreacion = Date.now();
-        toDo.fechaVencimiento = Date.now() + 1000;
+const agregarToDo = (texto, descripcion, proyecto) => {
+    if(texto.length > 0 && verificarLista(texto, proyecto.lista)) {
+        var toDo = {
+            texto: texto,
+            check: false,
+            horaCreacion: Date.now(),
+            horaCheck: false,
+            descripcion: descripcion,
+            fechaVencimiento: Date.now() + 1000
+        };
+
         proyecto.lista.push(toDo);
-        mostrarListaTodo(todo);
+        mostrarListaTodo(proyecto);
     }
 }
+
 
 const verificarLista = (elemento, lista) => {
     var i = 0;
@@ -153,25 +157,26 @@ const mostrarListaTodo = (proyecto) => {
         checkbox.checked = proyecto.lista[i].check;
         var eliminar = document.createElement("button");
         eliminar.setAttribute("id", `eliminar${i}`);
-        eliminar.setAttribute("onclick", "borrarToDo(" + i + ")");
+        eliminar.setAttribute("onclick", borrarToDo(i, proyecto.lista, proyecto.lista[i].texto));
         eliminar.textContent = "x";
         checkbox.addEventListener('change', (function(j) {
             return function() {
                 proyecto.lista[j].check = this.checked;
-                proyecto.lista[i].horaCheck = Date.now();
+                proyecto.lista[j].horaCheck = Date.now(); // Corregido el uso de j aquí
                 if(proyecto.lista[j].check){
-                    document.getElementById(j).style.textDecoration = 'line-through';
+                    document.getElementById(`label${j}`).style.textDecoration = 'line-through';
                 }
                 else{
-                    document.getElementById(j).style.textDecoration = 'none';
+                    document.getElementById(`label${j}`).style.textDecoration = 'none';
                     proyecto.lista[j].horaCheck = false;
                 }
             }
-        })(i));
+        })(i));        
         contenedor.appendChild(checkbox);
         contenedor.appendChild(label);
         contenedor.appendChild(eliminar);
         contenedor.setAttribute("class", "contenedor");
+        contenedor.setAttribute("id", `div${proyecto.lista[i].texto}`);
         array.appendChild(contenedor);
     }
 }
@@ -212,17 +217,11 @@ const calcularTareaMasRapida = () => {
     }
 }
 
-const borrarToDo = (i) => {
-    const resultado = document.getElementById("calcular");
-    resultado.querySelectorAll('p').forEach(parrafo => {
-        if (lista.includes(parrafo.textContent.trim())) {
-            parrafo.remove();
-        }
-    });
+const borrarToDo = (i, lista, texto) => {
+    const tarea = document.getElementById(`div${texto}`);
+    while (tarea.hasChildNodes()){
+        tarea.removeChild(tarea.firstChild);
+    }   
     lista.splice(i, 1);
-    listaCheck.splice(i, 1);
-    arrayHora.splice(i, 1);
     mostrarLista();
 }
-
-
