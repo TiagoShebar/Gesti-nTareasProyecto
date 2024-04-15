@@ -24,11 +24,13 @@ const agregarProyecto = (nombreProyecto, descripcionProyecto) => {
         pro.nombreProyecto = nombreProyecto;
         pro.descripcionProyecto = descripcionProyecto;
         listaProyectos.push(pro);
+        clickSI[pro.nombreProyecto] = false;
         mostrarProyectos();
     }
 }
 
-var clickSI=false;
+var clickSI = {};
+
 
 const mostrarProyectos = () => {
     const contenedorProyectos = document.getElementById("listaProyectos");
@@ -43,11 +45,14 @@ const mostrarProyectos = () => {
             title.setAttribute("id", `h3${element.nombreProyecto}`);
             var p = document.createElement("p");
             p.textContent = element.descripcionProyecto;
-            p.setAttribute("id", `p${element.nombreProyecto}`)
-            contenedor.appendChild(title);
-            contenedor.appendChild(p);
+            p.setAttribute("id", `p${element.nombreProyecto}`);
+            var label = document.createElement("label");
+            label.appendChild(title);
+            label.appendChild(p);
+            label.setAttribute("id", `label${element.nombreProyecto}`);
+            label.addEventListener("click", () => {if(clickSI[element.nombreProyecto]===false) {console.log("es falso"); desplegarProyecto(element.nombreProyecto); clickSI[element.nombreProyecto] = true;}else{console.log("es verdadero"); cerrarProyecto(element.nombreProyecto); clickSI[element.nombreProyecto] = false}}); // Usar addEventListener para asignar el evento click
+            contenedor.appendChild(label);
             contenedor.setAttribute("id", element.nombreProyecto);
-            contenedor.addEventListener("click", () => {if(clickSI===false) {console.log("es falso"); desplegarProyecto(element.nombreProyecto); clickSI = true;}else{console.log("es verdadero"); cerrarProyecto(element.nombreProyecto); clickSI = false}}); // Usar addEventListener para asignar el evento click
             contenedorProyectos.appendChild(contenedor);
         });
     }
@@ -65,6 +70,7 @@ const desplegarProyecto = (nombreProyecto) => {
         inputDescripcion.setAttribute("id", `descripcion${nombreProyecto}`);
         var button = document.createElement("button");
         button.setAttribute("id", `mas${nombreProyecto}`);
+        button.textContent = "+";
         button.onclick = function() {
             agregarToDo(
                 document.querySelector(`#todo${nombreProyecto}`).value,
@@ -92,12 +98,11 @@ const cerrarProyecto = (nombreProyecto) => {
         let elementoHijo = contenedorProyecto.children[i];
         
         // Verifica si el ID del elemento hijo es diferente de `h3${nombreProyecto}` y `p${nombreProyecto}`
-        if (elementoHijo.getAttribute("id") !== `h3${nombreProyecto}` && elementoHijo.getAttribute("id") !== `p${nombreProyecto}`) {
+        if (elementoHijo.getAttribute("id") !== `label${nombreProyecto}`) {
             contenedorProyecto.removeChild(elementoHijo);
             i--; // Disminuye el contador para ajustar la longitud de los hijos después de la eliminación
             cantidad--; // Disminuye la cantidad de hijos
         }
-        console.log(elementoHijo.getAttribute("id"));
     }
 }
 
@@ -105,11 +110,13 @@ const cerrarProyecto = (nombreProyecto) => {
 
 const agregarToDo = (todo, descripcion, proyecto) => {
     if(todo.length > 0 && verificarLista(todo, proyecto.lista)) {
-        proyecto.lista.push(Object.create(todo));
-        proyecto.lista[lista.length-1].texto = todo;
-        proyecto.lista[lista.length-1].horaCreacion = Date.now();
-        proyecto.lista[lista.length-1].descripcion = descripcion
-        proyecto.lista[lista.length-1].fechaVencimiento = Date.now() + 0.1;
+        var toDo = Object.create(todo);
+        console.log(toDo);
+        toDo.texto = todo;
+        toDo.descripcion = descripcion;
+        toDo.horaCreacion = Date.now();
+        toDo.fechaVencimiento = Date.now() + 1000;
+        proyecto.lista.push(toDo);
         mostrarListaTodo(todo);
     }
 }
@@ -136,7 +143,6 @@ const mostrarListaTodo = (proyecto) => {
     for (var i = 0; i < proyecto.lista.length; i++){
         var contenedor = document.createElement("div");
         var label = document.createElement("label");
-        console.log(proyecto.lista)
         label.textContent = proyecto.lista[i].texto !== undefined? proyecto.lista[i].texto : '';
         label.setAttribute("id", `label${i}`);
         if (proyecto.lista[i].check) {
