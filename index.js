@@ -1,26 +1,14 @@
 
 
-var proyecto = {
-    nombreProyecto: "",
-    descripcionProyecto: "",
-    lista: [],
-};
-
-var todo = {
-    texto: "",
-    check: false,
-    horaCreacion: null,
-    horaCheck: false,
-    descripcion: "",
-    fechaVencimiento: null,
-};
-
-
 var listaProyectos = [];
 
 const agregarProyecto = (nombreProyecto, descripcionProyecto) => {
     if(nombreProyecto.length > 0 && verificarLista(nombreProyecto, listaProyectos)){
-        var pro = Object.create(proyecto);
+        var pro = {
+            nombreProyecto: "",
+            descripcionProyecto: "",
+            lista: [],
+        };
         pro.nombreProyecto = nombreProyecto;
         pro.descripcionProyecto = descripcionProyecto;
         listaProyectos.push(pro);
@@ -75,8 +63,9 @@ const desplegarProyecto = (nombreProyecto) => {
             agregarToDo(
                 document.querySelector(`#todo${nombreProyecto}`).value,
                 document.querySelector(`#descripcion${nombreProyecto}`).value,
-                listaProyectos.find(element => element.nombreProyecto === nombreProyecto),
-                nombreProyecto
+                console.log(nombreProyecto),
+                listaProyectos.findIndex(objeto => objeto.nombreProyecto === nombreProyecto),
+                console.log(listaProyectos.findIndex(objeto => objeto.nombreProyecto === nombreProyecto))
             );
         };
         contenedor.appendChild(inputTarea);
@@ -108,20 +97,25 @@ const cerrarProyecto = (nombreProyecto) => {
 
 
 
-const agregarToDo = (texto, descripcion, proyecto) => {
-    if(texto.length > 0 && verificarLista(texto, proyecto.lista)) {
-        var toDo = {
-            texto: texto,
-            check: false,
-            horaCreacion: Date.now(),
-            horaCheck: false,
-            descripcion: descripcion,
-            fechaVencimiento: Date.now() + 1000
-        };
-
-        proyecto.lista.push(toDo);
-        mostrarListaTodo(proyecto);
+const agregarToDo = (texto, descripcion, i) => {
+    var todo = {
+        texto: texto,
+        check: false,
+        horaCreacion: Date.now(),
+        horaCheck: false,
+        descripcion: descripcion,
+        fechaVencimiento: Date.now() + 1000,
+    };
+    console.log(listaProyectos[0].lista);
+    if(texto.length > 0 && listaProyectos[0].lista !== undefined){
+        if(verificarLista(texto, listaProyectos[0].lista)) {
+            listaProyectos[0].lista.push(todo);
+        }
     }
+    else if(listaProyectos[i].lista === undefined){
+        listaProyectos[i].lista.push(todo);
+    }
+    mostrarListaTodo(listaProyectos[i]);
 }
 
 
@@ -140,8 +134,10 @@ const verificarLista = (elemento, lista) => {
 
 const mostrarListaTodo = (proyecto) => {
     const array = document.getElementById(`ul${proyecto.nombreProyecto}`);
-    while (array.hasChildNodes()){
-        array.removeChild(array.firstChild);
+    if(array != null){
+        while (array.hasChildNodes()){
+            array.removeChild(array.firstChild);
+        }
     }
 
     for (var i = 0; i < proyecto.lista.length; i++){
@@ -157,7 +153,10 @@ const mostrarListaTodo = (proyecto) => {
         checkbox.checked = proyecto.lista[i].check;
         var eliminar = document.createElement("button");
         eliminar.setAttribute("id", `eliminar${i}`);
-        eliminar.setAttribute("onclick", borrarToDo(i, proyecto.lista, proyecto.lista[i].texto));
+        eliminar.onclick = function() {
+            borrarToDo(i, proyecto);
+        };
+        
         eliminar.textContent = "x";
         checkbox.addEventListener('change', (function(j) {
             return function() {
@@ -176,7 +175,7 @@ const mostrarListaTodo = (proyecto) => {
         contenedor.appendChild(label);
         contenedor.appendChild(eliminar);
         contenedor.setAttribute("class", "contenedor");
-        contenedor.setAttribute("id", `div${proyecto.lista[i].texto}`);
+        contenedor.setAttribute("id", `div${i}`);
         array.appendChild(contenedor);
     }
 }
@@ -217,11 +216,13 @@ const calcularTareaMasRapida = () => {
     }
 }
 
-const borrarToDo = (i, lista, texto) => {
-    const tarea = document.getElementById(`div${texto}`);
-    while (tarea.hasChildNodes()){
-        tarea.removeChild(tarea.firstChild);
-    }   
-    lista.splice(i, 1);
-    mostrarLista();
+const borrarToDo = (i, proyecto) => {
+    const tarea = document.getElementById(`div${i}`);
+    if(tarea != null){
+        while (tarea.hasChildNodes()){
+            tarea.removeChild(tarea.firstChild);
+        }   
+    }
+    proyecto.lista.splice(i, 1);
+    mostrarListaTodo(proyecto);
 }
